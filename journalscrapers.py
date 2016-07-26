@@ -13,6 +13,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import Select
 
 from base import BaseJournalScraper
+from datetime import datetime
 
 
 class BioMedCentralScraper(BaseJournalScraper):
@@ -99,10 +100,9 @@ class ElsevierScraper(BaseJournalScraper):
 
     def get_entries(self):
         for row in self.reader:
-            row = [BaseJournalScraper.clean_string(i) for i in row]
             yield BaseJournalScraper.to_unicode_row(["Elsevier", row[1], str(date.today()),
-                   row[2] == 'Hybrid',
-                   row[0], str(int(round(float(row[4]))))])
+                                                    row[2] == 'Hybrid',
+                                                    row[0], str(int(round(float(row[4]))))])
 
 
 class ExistingScraper(BaseJournalScraper):
@@ -113,17 +113,18 @@ class ExistingScraper(BaseJournalScraper):
 
     @staticmethod
     def __get_row(row):
-        if not row[2]:
+        if not row[2] or (not BaseJournalScraper.ISSN_PATT.findall(row[2])):
             raise MissingAttributeException
-        return BaseJournalScraper.to_unicode_row((row[0], row[1], row[6],
-                not row[4], row[2], str(int(round(float(row[4]))))))
+        return BaseJournalScraper.to_unicode_row([row[0], row[1], str(datetime(int(row[6]), 1, 10, 10, 10, 10)),
+                                                not row[4], row[2], str(int(round(float(row[4]))))])
 
     def get_entries(self):
         for row in self.reader:
             try:
                 yield ExistingScraper.__get_row(row)
             except MissingAttributeException as e:
-                logging.warning(str(row) + str(e))
+                #logging.warning(str(row) + str(e))
+                pass
 
 
 class HindawiScraper(BaseJournalScraper):
@@ -208,7 +209,7 @@ class SpringerHybridScraper(BaseJournalScraper):
     def get_entries(self):
         for row in self.reader:
             if row[11] == "Hybrid (Open Choice)":
-                yield BaseJournalScraper.to_unicode_row(["Springer", BaseJournalScraper.clean_string(row[1]),
+                yield BaseJournalScraper.to_unicode_row(["Springer", row[1],
                                                      str(date.today()), True, row[5], str(3000)])
 
 
