@@ -16,15 +16,15 @@ print token
 count = 0
 
 scrapers = [
-    BioMedCentralScraper("https://www.biomedcentral.com/journals"),
-    ElsevierScraper("data/elsevier/2016-uncleaned.csv"),
-    ExistingScraper("data/OA_journals.tsv"),
-    HindawiScraper("http://www.hindawi.com/apc/"),
-    PLOSScraper("https://www.plos.org/publication-fees"),
-    SageHybridScraper(""),
-    SpringerHybridScraper("data/springer/2016+Springer+Journals+List.csv"),
-    SpringerOpenScraper("http://www.springeropen.com/journals"),
-    #WileyScraper("http://olabout.wiley.com/WileyCDA/Section/id-828038.html")
+    #BioMedCentralScraper("https://www.biomedcentral.com/journals"),
+    #ElsevierScraper("data/elsevier/2016-uncleaned.csv"),
+    #ExistingScraper("data/OA_journals.tsv"),
+    #HindawiScraper("http://www.hindawi.com/apc/"),
+    #PLOSScraper("https://www.plos.org/publication-fees"),
+    #SageHybridScraper(""),
+    #SpringerHybridScraper("data/springer/2016+Springer+Journals+List.csv"),
+    #SpringerOpenScraper("http://www.springeropen.com/journals"),
+    WileyScraper("http://olabout.wiley.com/WileyCDA/Section/id-828038.html")
 ]
 
 for scraper in scrapers:
@@ -40,7 +40,6 @@ for scraper in scrapers:
                 'is_hybrid': raw_data['is_hybrid'],
                 'category': None,
             }
-
             # adding information to the journal endpoint
             journal_request = requests.put(
                 "http://54.183.181.205/journals/" + journal_request_data['issn']+"/",
@@ -56,7 +55,6 @@ for scraper in scrapers:
                 'price': raw_data['apc'],
                 'time_stamp': raw_data['time_stamp']
             }
-
             price_request = requests.put(
                 "http://54.183.181.205/prices/" + price_request_data['issn']+"/",
                 headers={
@@ -65,7 +63,6 @@ for scraper in scrapers:
                 },
                 data=json.dumps(price_request_data),
             )
-
             print journal_request.status_code
             print journal_request_data
             print price_request_data
@@ -73,4 +70,3 @@ for scraper in scrapers:
     except StopIteration:
         print str(scraper) + " isn't implemented yet."
 
-print count

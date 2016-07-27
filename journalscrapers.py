@@ -214,6 +214,8 @@ class SpringerHybridScraper(BaseJournalScraper):
 
 
 class SpringerOpenScraper(BaseJournalScraper):
+    FREE_PATT = re.compile("authors do not need to pay")
+
     def __init__(self, http_address):
         f = urllib2.urlopen(http_address, timeout=10)
         self.soup = BeautifulSoup(f, 'lxml')
@@ -223,8 +225,11 @@ class SpringerOpenScraper(BaseJournalScraper):
         for tag in soup.find_all(class_="CmsArticle_body"):
             text = tag.get_text()
             price_matches = SpringerOpenScraper.PRICE_PATT.findall(text)
+            free_matches = SpringerOpenScraper.FREE_PATT.findall(text)
             if price_matches:
                 return str(int(round(float(price_matches[0].replace(",", "").replace("$", "").replace("'", "")))))
+            elif free_matches:
+                return "0"
         raise MissingAttributeException
 
     @staticmethod
@@ -236,7 +241,7 @@ class SpringerOpenScraper(BaseJournalScraper):
 
     @staticmethod
     def __get_issn(soup):
-        issn_tag = soup.find(class_="SideBox_defList")
+        issn_tag = soup.find(class_="SideBox_list list-stacked list-stacked--small list-stacked--2")
         if not issn_tag:
             raise MissingAttributeException
         issn_matches = SpringerOpenScraper.ISSN_PATT.findall(issn_tag.get_text())
@@ -246,21 +251,23 @@ class SpringerOpenScraper(BaseJournalScraper):
 
     def get_entries(self):
         for tag in self.soup.find_all(class_="list-stacked__item"):
-            link = tag.find("a")["href"]
+            link = "http://" + tag.find("a")["href"].strip('/')
             if "springeropen.com" not in link:
                 print link + ": Not valid"
                 continue
 
             try:
-                g = urllib2.urlopen(link + "about", timeout=5).read()
+                print link
+                g = urllib2.urlopen(link + "/about", timeout=5).read()
                 about_soup = BeautifulSoup(g, 'lxml')
-            except Exception:
+            except Exception as e:
                 print link + ": Connection problems, continuing to the next entry"
                 continue
 
             try:
                 price = SpringerOpenScraper.__get_price(about_soup)
-            except MissingAttributeException:
+            except MissingAttributeException as e:
+                print e
                 print link + ": No price could be found"
                 continue  # skipping to the next entry
 
