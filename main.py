@@ -4,6 +4,9 @@ from journalscrapers import BioMedCentralScraper, ElsevierScraper, ExistingScrap
     HindawiScraper, PLOSScraper, SageHybridScraper, SpringerHybridScraper, SpringerOpenScraper, \
     WileyScraper
 from datetime import datetime
+from add_ai import get_map
+
+
 web_url = 'http://54.183.181.205/'
 dev_url = 'http://localhost:8000/'
 
@@ -28,20 +31,29 @@ scrapers = [
     #WileyScraper("http://olabout.wiley.com/WileyCDA/Section/id-828038.html")
 ]
 
+ai_map = get_map()
+
 for scraper in scrapers:
     try:
         for i in scraper.get_entries():
             raw_data = dict(zip(["pub", "name", "time_stamp", "is_hybrid", "issn", "apc"], i))
+            if raw_data['issn'] in ai_map:
+                ai = float(ai_map[raw_data['issn']])
+            else:
+                ai = None
+
             journal_request_data = {
                 'issn': raw_data['issn'],
                 'journal_name': raw_data['name'],
                 'pub_name': raw_data['pub'],
-                'article_influence': None,
+                'article_influence': ai,
                 'est_article_influence': None,
                 'is_hybrid': raw_data['is_hybrid'],
                 'category': None,
             }
             # adding information to the journal endpoint
+            print journal_request_data['article_influence']
+
             journal_request = requests.put(
                 dev_url + "api/journals/" + journal_request_data['issn']+"/",
                 headers={
@@ -68,6 +80,7 @@ for scraper in scrapers:
             print journal_request_data
             print price_request_data
             print "Price: " + str(price_request.status_code)
+
     except StopIteration:
         print str(scraper) + " isn't implemented yet."
 

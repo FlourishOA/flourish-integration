@@ -1,9 +1,12 @@
-import requests
-import json
+import csv
 
-r = requests.post('http://54.183.181.205/api-token-auth/',
-                  data={
-                      'username': 'user1',
-                      'password': 'test1test2'
-                  })
-token = "Token " + json.loads(r.text)['token']
+def get_map():
+    ai_map = {}
+    with open("data/journals_EF_AI_2014.txt") as f:
+        r = csv.reader(f, dialect=csv.excel_tab)
+        first = next(r)
+        for row in r:
+            ai_map[row[1]] = row[15]
+    return ai_map
+
+
