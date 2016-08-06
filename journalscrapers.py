@@ -51,7 +51,8 @@ class BioMedCentralScraper(BaseJournalScraper):
 
     @staticmethod
     def __get_issn(soup):
-        issn_tag = soup.find(class_="SideBox_defList")
+        issn_tag = soup.find(class_="SideBox_list list-stacked list-stacked--small list-stacked--2")
+
         if not issn_tag:
             raise MissingAttributeException
         issn_matches = BioMedCentralScraper.ISSN_PATT.findall(issn_tag.get_text())
@@ -61,9 +62,10 @@ class BioMedCentralScraper(BaseJournalScraper):
 
     def get_entries(self):
         for tag in self.soup.find_all(class_="list-stacked__item"):
-            link = tag.find("a")["href"]
+            #link = tag.find("a")["href"]
+            link = "https://" + tag.find("a")["href"].strip('/')
             try:
-                g = urllib2.urlopen(link + "about", timeout=5)
+                g = urllib2.urlopen(link + "/about", timeout=5)
                 about_soup = BeautifulSoup(g, 'lxml')
             except Exception:
                 print link + ": Connection problems, continuing to the next entry"
@@ -115,8 +117,15 @@ class ExistingScraper(BaseJournalScraper):
     def __get_row(row):
         if not row[2] or (not BaseJournalScraper.ISSN_PATT.findall(row[2])):
             raise MissingAttributeException
-        return BaseJournalScraper.to_unicode_row([row[0], row[1], str(datetime(int(row[6]), 1, 10, 10, 10, 10)),
-                                                not row[4], row[2], str(int(round(float(row[4]))))])
+        return BaseJournalScraper.to_unicode_row([row[0], row[1], ExistingScraper.__get_date(row[6]),
+                                                  not row[4], row[2], str(int(round(float(row[4]))))])
+
+    @staticmethod
+    def __get_date(raw_date):
+        """
+        Takes raw year and turns it into YYYY-MM-DD
+        """
+        return raw_date + "-01-01"
 
     def get_entries(self):
         for row in self.reader:
