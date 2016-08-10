@@ -9,26 +9,26 @@ from add_ai import get_map
 
 web_url = 'http://54.183.181.205/'
 dev_url = 'http://localhost:8000/'
+url = dev_url
 
-r = requests.post(web_url + 'api-token-auth/',
+r = requests.post(url + 'api-token-auth/',
                   data={
                       'username': 'user1',
                       'password': 'test1test2'
                   })
 token = "Token " + json.loads(r.text)['token']
 print token
-count = 0
 
 scrapers = [
     #BioMedCentralScraper("https://www.biomedcentral.com/journals"),
     #ElsevierScraper("data/elsevier/2016-uncleaned.csv"),
-    #ExistingScraper("data/OA_journals.tsv"),
+    ExistingScraper("data/OA_journals.tsv"),
     #HindawiScraper("http://www.hindawi.com/apc/"),
     #PLOSScraper("https://www.plos.org/publication-fees"),
     #SageHybridScraper(""),
     #SpringerHybridScraper("data/springer/2016+Springer+Journals+List.csv"),
     #SpringerOpenScraper("http://www.springeropen.com/journals"),
-    WileyScraper("http://olabout.wiley.com/WileyCDA/Section/id-828038.html")
+    #WileyScraper("http://olabout.wiley.com/WileyCDA/Section/id-828038.html")
 ]
 
 ai_map = get_map()
@@ -37,7 +37,11 @@ for scraper in scrapers:
     try:
         for i in scraper.get_entries():
             raw_data = dict(zip(["pub", "name", "date_stamp", "is_hybrid", "issn", "apc"], i))
-            if raw_data['issn'] in ai_map:
+            date_stamp = raw_data['date_stamp']
+            year = date_stamp[0:4]
+            print year
+            # making sure AI is non-null and has same year as price
+            if raw_data['issn'] in ai_map and ai_map[raw_data['issn']]['year'] == date_stamp:
                 ai = float(ai_map[raw_data['issn']])
             else:
                 ai = None
@@ -50,10 +54,10 @@ for scraper in scrapers:
                 'category': None,
             }
             # adding information to the journal endpoint
-            date_stamp = raw_data['date_stamp']
+
 
             journal_request = requests.put(
-                web_url + "api/journals/" + journal_request_data['issn']+"/",
+                url + "api/journals/" + journal_request_data['issn']+"/",
                 headers={
                     'Authorization': token,
                     'Content-Type': 'application/json',
@@ -61,36 +65,37 @@ for scraper in scrapers:
                 data=json.dumps(journal_request_data),
             )
 
-
-            price_request_data = {
-                'issn': raw_data['issn'],
-                'price': raw_data['apc'],
-                'date_stamp': date_stamp
-            }
-
-            price_request = requests.put(
-                web_url + "api/prices/" + price_request_data['issn']+"/",
-                headers={
-                    'Authorization': token,
-                    'Content-Type': 'application/json',
-                },
-                data=json.dumps(price_request_data),
-            )
-
+            # adding ArticleInfluence scores
             influence_request_data = {
                 'issn': raw_data['issn'],
                 'article_influence': ai,
                 'est_article_influence': None,
-                'date_stamp': date_stamp
+                'year': year
             }
 
             influence_request = requests.put(
-                web_url + "api/influence/" + influence_request_data['issn'] + "/",
+                url + "api/influence/" + influence_request_data['issn'] + "/",
                 headers={
                     'Authorization': token,
                     'Content-Type': 'application/json',
                 },
                 data=json.dumps(influence_request_data)
+            )
+
+            # adding prices
+            price_request_data = {
+                'issn': raw_data['issn'],
+                'price': raw_data['apc'],
+                'date_stamp': date_stamp,
+            }
+
+            price_request = requests.put(
+                url + "api/prices/" + price_request_data['issn']+"/",
+                headers={
+                    'Authorization': token,
+                    'Content-Type': 'application/json',
+                },
+                data=json.dumps(price_request_data),
             )
 
             print "(" + str(scraper) + ") Status:"
