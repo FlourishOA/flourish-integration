@@ -21,13 +21,6 @@ with open("data/journals_all.txt") as f:
             'year': raw_data['year']
         })
 
-        # adding prices
-        agg_price_requests.append({
-            'issn': raw_data['issn'],
-            'price': raw_data['apc'],
-            'date_stamp': raw_data['year'] + "-12-31"
-        })
-
 
 with open("data/influence_requests.json", "a") as f:
     f.write(json.dumps(agg_influence_requests))
