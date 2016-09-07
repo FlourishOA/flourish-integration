@@ -4,7 +4,7 @@ import json
 
 web_url = 'http://54.183.181.205/'
 dev_url = 'http://localhost:8000/'
-url = web_url
+url = dev_url
 
 r = requests.post(url + 'api-token-auth/',
                   data={
@@ -15,9 +15,9 @@ token = "Token " + json.loads(r.text)['token']
 print token
 
 request_dicts = [
-    {"file_path": "journal_requests.json", "url_stub": "api/journals/"},
-    {"file_path": "influence_requests.json", "url_stub": "api/influence/"},
-    {"file_path": "price_requests.json", "url_stub": "api/prices/"},
+    {"file_path": "category_update_requests.json", "url_stub": "api/journals/"},
+    #{"file_path": "influence_requests.json", "url_stub": "api/influence/"},
+    #{"file_path": "price_requests.json", "url_stub": "api/prices/"},
     ]
 valid_issn = set()
 for rd in request_dicts:
