@@ -5,15 +5,15 @@ from journalscrapers import BioMedCentralScraper, ElsevierScraper, ExistingScrap
 import json
 
 scrapers = [
-    BioMedCentralScraper("https://www.biomedcentral.com/journals"),
+    #BioMedCentralScraper("https://www.biomedcentral.com/journals"),
     ElsevierScraper("data/elsevier/2016-uncleaned.csv"),
-    ExistingScraper("data/OA_journals.tsv"),
-    HindawiScraper("http://www.hindawi.com/apc/"),
-    PLOSScraper("https://www.plos.org/publication-fees"),
-    SageHybridScraper(""),
-    SpringerHybridScraper("data/springer/2016+Springer+Journals+List.csv"),
-    SpringerOpenScraper("http://www.springeropen.com/journals"),
-    WileyScraper("http://olabout.wiley.com/WileyCDA/Section/id-828038.html")
+    #ExistingScraper("data/OA_journals.tsv"),
+    #HindawiScraper("http://www.hindawi.com/apc/"),
+    #PLOSScraper("https://www.plos.org/publication-fees"),
+    #SageHybridScraper(""),
+    #SpringerHybridScraper("data/springer/2016+Springer+Journals+List.csv"),
+    #SpringerOpenScraper("http://www.springeropen.com/journals"),
+    #WileyScraper("http://olabout.wiley.com/WileyCDA/Section/id-828038.html")
 ]
 
 agg_journal_requests = []
@@ -28,7 +28,6 @@ for scraper in scrapers:
                 'journal_name': raw_data['name'],
                 'pub_name': raw_data['pub'],
                 'is_hybrid': raw_data['is_hybrid'],
-                'category': None,
             })
 
             agg_price_requests.append({
