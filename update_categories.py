@@ -9,8 +9,8 @@ url = web_url
 
 r = requests.post(url + 'api-token-auth/',
                   data={
-                      'username': '***REMOVED***',
-                      'password': '***REMOVED***'
+                      'username': '',
+                      'password': ''
                   })
 token = "Token " + json.loads(r.text)['token']
 print token
