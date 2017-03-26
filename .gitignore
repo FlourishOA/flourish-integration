@@ -93,3 +93,4 @@ ENV/
 .idea/
 passwords.txt
 *DS_Store
+*.db
