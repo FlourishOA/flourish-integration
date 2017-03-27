@@ -30,7 +30,6 @@ class BaseJournalScraper(BaseScraper):
         "\xa7": "B", " fee not payable by author": ""
     }
 
-
     @staticmethod
     def to_unicode_item(item):
         try:

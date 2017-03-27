@@ -360,6 +360,7 @@ class WileyScraper(BaseJournalScraper):
                 journal_type = oa_option_element.text != "Fully Open Access"
                 yield self.to_unicode_row(["Wiley", journal, str(date.today()), journal_type, issn_matches, price])
 
+
 class MissingAttributeException(Exception):
     def __init__(self, *args, **kwargs):
         Exception.__init__(self, *args, **kwargs)
