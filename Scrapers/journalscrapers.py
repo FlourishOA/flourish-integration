@@ -2,7 +2,6 @@
 # imports for class implementation
 import csv
 import itertools
-import logging
 import re
 import urllib2
 from datetime import date
@@ -12,8 +11,7 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import Select
 
-from base import BaseJournalScraper
-from datetime import datetime
+from Scrapers.base import BaseJournalScraper
 
 
 class BioMedCentralScraper(BaseJournalScraper):

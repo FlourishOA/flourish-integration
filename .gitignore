@@ -95,3 +95,4 @@ passwords.txt
 *DS_Store
 *.db
 *.pyc
+*.log
